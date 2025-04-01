@@ -1,0 +1,11 @@
+version: 2.1
+
+jobs:
+  deploy-1:
+    docker:
+      - image: cimg/base:current
+
+    steps:
+      - run:
+          name: "Deploy"
+          command: echo "This is the deploy override"
