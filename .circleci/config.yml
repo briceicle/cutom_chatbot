@@ -2,4 +2,19 @@ version: 2.1
 
 jobs:
   deploy:
-    type: no-op
+    docker:
+      - image: cimg/base:current
+
+    steps:
+      - run:
+          name: "Deploy"
+          command: echo "Hello!"
+
+workflows:
+  workflow:
+    jobs:
+      - hold:
+          type: approval
+      - deploy:
+          requires:
+            - hold
