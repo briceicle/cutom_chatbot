@@ -1,6 +1,8 @@
 version: 2.1
 
 jobs:
+  ok-to-continue:
+    type: no-op
   deploy:
     docker:
       - image: cimg/base:current
@@ -13,8 +15,7 @@ jobs:
 workflows:
   workflow:
     jobs:
-      - ok-to-continue:
-          type: no-op
+      - ok-to-continue
       - deploy:
           requires:
             - ok-to-continue: failed
