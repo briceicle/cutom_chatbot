@@ -15,7 +15,8 @@ jobs:
 workflows:
   workflow:
     jobs:
-      - ok-to-continue
+      - hold:
+        type: approval
       - deploy:
           requires:
-            - ok-to-continue: failed
+            - hold
