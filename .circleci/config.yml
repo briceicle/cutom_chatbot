@@ -1,8 +1,6 @@
 version: 2.1
 
 jobs:
-  ok-to-continue:
-    type: no-op
   deploy:
     docker:
       - image: cimg/base:current
@@ -16,7 +14,7 @@ workflows:
   workflow:
     jobs:
       - hold:
-        type: approval
+          type: approval
       - deploy:
           requires:
             - hold
