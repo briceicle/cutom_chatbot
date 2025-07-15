@@ -8,13 +8,10 @@ jobs:
     steps:
       - run:
           name: "Deploy"
-          command: echo "Hello!"
+          command: exit 1
 
 workflows:
   workflow:
+    max_auto_reruns: 1
     jobs:
-      - hold:
-          type: approval
-      - deploy:
-          requires:
-            - hold
+      - deploy
