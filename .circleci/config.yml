@@ -8,7 +8,7 @@ jobs:
     steps:
       - run:
           name: "Deploy"
-          command: exit 1
+          command: exit 5
 
 workflows:
   workflow:
