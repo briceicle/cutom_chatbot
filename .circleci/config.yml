@@ -8,10 +8,9 @@ jobs:
     steps:
       - run:
           name: "Deploy"
-          command: "exit $((RANDOM % 2))"
+          command: "echo deploy"
 
 workflows:
   workflow:
-    max_auto_reruns: 5
     jobs:
       - deploy
