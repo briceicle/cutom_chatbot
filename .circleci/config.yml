@@ -13,4 +13,7 @@ jobs:
 workflows:
   workflow:
     jobs:
-      - deploy
+      - hold
+        type: approval
+      - deploy:
+          requires: hold
