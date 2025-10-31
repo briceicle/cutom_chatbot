@@ -1,20 +1,27 @@
 version: 2.1
 
 jobs:
-  deploy:
+  build:
     docker:
       - image: cimg/base:current
 
     steps:
       - run:
-          name: "Deploy"
-          command: "echo deploy"
+          name: "Build"
+          command: "sleep 1m"
+  test:
+    docker:
+      - image: cimg/base:current
+
+    steps:
+      - run:
+          name: "Test"
+          command: "echo test"
 
 workflows:
   workflow:
     jobs:
-      - hold:
-          type: approval
-      - deploy:
+      - build
+      - test:
           requires: 
-            - hold
+            - build: canceled
