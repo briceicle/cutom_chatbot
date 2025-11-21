@@ -4,19 +4,24 @@ jobs:
   build:
     docker:
       - image: cimg/base:current
-
     steps:
       - run:
           name: "Build"
-          command: "sleep 1m"
+          command: "echo build"
   test:
     docker:
       - image: cimg/base:current
-
     steps:
       - run:
           name: "Test"
           command: "echo test"
+  cleanup:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: "Cleanup"
+          command: "echo cleaning up resources"
 
 workflows:
   workflow:
@@ -24,4 +29,7 @@ workflows:
       - build
       - test:
           requires: 
-            - build: canceled
+            - build: failed
+      - cleanup:
+          requires: 
+            - build: not_run
