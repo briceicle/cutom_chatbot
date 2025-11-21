@@ -32,4 +32,4 @@ workflows:
             - build: failed
       - cleanup:
           requires: 
-            - build: not_run
+            - test: not_run
