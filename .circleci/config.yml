@@ -16,8 +16,10 @@ workflows:
     jobs:
       - build
       - test:
+          name: test-1
           requires: 
             - build
       - test:
+          name: test-2
           requires: 
             - build
