@@ -1,12 +1,6 @@
 version: 2.1
 
 jobs:
-  deploy:
-    type: no-op
-
-version: 2.1
-
-jobs:
   build:
     docker:
       - image: cimg/base:current
