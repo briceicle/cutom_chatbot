@@ -3,3 +3,27 @@ version: 2.1
 jobs:
   deploy:
     type: no-op
+
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: "Build"
+          command: "echo build"
+  test:
+    type: no-op
+
+workflows:
+  workflow:
+    jobs:
+      - build
+      - no-op:
+          requires: 
+            - build
+      - no-op:
+          requires: 
+            - build
