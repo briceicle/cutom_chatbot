@@ -6,7 +6,7 @@ jobs:
       - image: cimg/base:current
     steps:
       - run:
-          name: "Build"
+          name: "build"
           command: "exit 1"
   test:
     type: no-op
