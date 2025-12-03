@@ -15,9 +15,9 @@ workflows:
   workflow:
     jobs:
       - build
-      - no-op:
+      - test:
           requires: 
             - build
-      - no-op:
+      - test:
           requires: 
             - build
