@@ -1,5 +1,33 @@
 version: 2.1
 
 jobs:
-  deploy:
+  build:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: "build"
+          command: "exit 1"
+  no-op:
     type: no-op
+
+workflows:
+  workflow:
+    jobs:
+      - build
+      - no-op:
+          name: no-op-1
+          requires: 
+            - build
+      - no-op:
+          name: no-op-2
+          requires: 
+            - build
+      - no-op:
+          name: no-op-3
+          requires: 
+            - build
+      - no-op:
+          name: no-op-4
+          requires: 
+            - build
