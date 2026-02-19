@@ -13,6 +13,7 @@ jobs:
 
 workflows:
   workflow:
+    max-auto-rerun: 3
     jobs:
       - build
       - no-op:
