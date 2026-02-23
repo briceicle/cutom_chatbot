@@ -21,13 +21,16 @@ jobs:
 workflows:
   workflow:
     jobs:
-      - build
+      - build:
+          name: build-1
+      - build:
+          name: build-2
       - no-op:
           name: no-op-1
           requires: 
-            - build
+            - build-1
       - no-op:
           name: no-op-1
           requires: 
-            - build
+            - build-2
         
