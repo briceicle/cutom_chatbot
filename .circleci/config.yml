@@ -4,22 +4,20 @@ jobs:
   build:
     docker:
       - image: cimg/base:current
+    parameters:
+      word:
+        type: string
     steps:
       - run:
           name: "build"
-          command: "exit 1"
-  build:
-    docker:
-      - image: cimg/base:current
-    steps:
-      - run:
-          name: "build"
-          command: "exit 1"
+          command: "echo << parameters.word >> world"
   test:
     type: no-op
 
 workflows:
   workflow:
-    max_auto_reruns: 1
     jobs:
-      - build
+      - build:
+          matrix:
+            parameters:
+              word: ["hello", "goodbye" ]
