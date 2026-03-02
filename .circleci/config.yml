@@ -21,5 +21,5 @@ workflows:
           matrix:
             parameters:
               word: ["hello", "goodbye" ]
-     - test:
-         requires: build
+      - test:
+          requires: build
