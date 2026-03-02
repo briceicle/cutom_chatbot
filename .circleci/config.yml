@@ -4,13 +4,10 @@ jobs:
   build:
     docker:
       - image: cimg/base:current
-    parameters:
-      word:
-        type: string
     steps:
       - run:
           name: "build"
-          command: "echo << parameters.word >> world"
+          command: "echo hello world"
   test:
     type: no-op
 
