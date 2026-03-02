@@ -22,4 +22,5 @@ workflows:
             parameters:
               word: ["hello", "goodbye" ]
       - test:
-          requires: build
+          requires: 
+            - build
