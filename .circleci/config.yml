@@ -18,6 +18,7 @@ workflows:
   workflow:
     jobs:
       - build:
+          name: build-code
           matrix:
             parameters:
               word: ["hello", "goodbye" ]
