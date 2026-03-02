@@ -18,10 +18,8 @@ workflows:
   workflow:
     jobs:
       - build:
-          name: build-code
-          matrix:
-            parameters:
-              word: ["hello", "goodbye" ]
-      - test:
-          requires: 
-            - build
+          name: build-one
+          serial-group: << pipeline.project.slug >>/build-group
+      - build:
+          name: build-two
+          serial-group: << pipeline.project.slug >>/build-group
