@@ -8,11 +8,12 @@ jobs:
       - run:
           name: "build"
           command: "exit 1"
-  test:
+  no-op:
     type: no-op
 
 workflows:
   workflow:
     jobs:
+      - no-op
       - build:
-          serial-group: << pipeline.project.slug >>/build-group
+          serial-group: << pipeline.project.slug >>/build
