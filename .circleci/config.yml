@@ -23,7 +23,7 @@ workflows:
       - lock
       - no-op:
           requires:
-              lock
+              - lock
       - build:
           requires:
               - no-op
