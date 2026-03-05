@@ -20,13 +20,13 @@ jobs:
 workflows:
   workflow:
     jobs:
-      - lock
+      - serial-start
       - no-op:
           requires:
-              - lock
+              - serial-start
       - build:
           requires:
               - no-op
-      - unlock:
+      - serial-end:
           requires:
               - build: terminal
