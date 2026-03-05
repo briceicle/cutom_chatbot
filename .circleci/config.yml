@@ -21,7 +21,7 @@ workflows:
   workflow:
     jobs:
       - lock
-      - no-op
+      - no-op:
           requires:
               lock
       - build:
