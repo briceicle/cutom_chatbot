@@ -10,10 +10,23 @@ jobs:
           command: "exit 1"
   no-op:
     type: no-op
+  serial-start:
+    key: << pipeline.project.slug >>/build
+    type: lock
+  serial-end:
+    key: << pipeline.project.slug >>/build
+    type: unlock
 
 workflows:
   workflow:
     jobs:
+      - lock
       - no-op
+          requires:
+              lock
       - build:
-          serial-group: << pipeline.project.slug >>/build
+          requires:
+              - no-op
+      - unlock:
+          requires:
+              - build: terminal
