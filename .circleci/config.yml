@@ -24,4 +24,4 @@ workflows:
           name: my-no-op
       - build:
           requires:
-              - no-op
+              - my-no-op
