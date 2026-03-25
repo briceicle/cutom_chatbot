@@ -20,8 +20,8 @@ jobs:
 workflows:
   workflow:
     jobs:
-      - no-op
-      - no-op
+      - no-op:
+          name: my-no-op
       - build:
           requires:
               - no-op
