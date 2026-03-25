@@ -20,10 +20,8 @@ jobs:
 workflows:
   workflow:
     jobs:
-      - serial-start
+      - no-op
+      - no-op
       - build:
           requires:
-              - serial-start
-      - serial-end:
-          requires:
-              - build: terminal
+              - no-op
