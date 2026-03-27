@@ -7,7 +7,7 @@ jobs:
     steps:
       - run:
           name: "build"
-          command: "exit hello"
+          command: "echo hello"
   no-op:
     type: no-op
 
