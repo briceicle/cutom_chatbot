@@ -23,4 +23,7 @@ job-groups:
 workflows:
   workflow:
     jobs:
-      - my-job-group
+      - build
+      - no-op
+      - no-op:
+          name: other-no-op
