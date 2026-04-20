@@ -29,4 +29,5 @@ job-groups:
 workflows:
   workflow:
     jobs:
-      - build-and-test
+      - build-and-test:
+          serial-group: << pipeline.project.slug >>/build-and-test
