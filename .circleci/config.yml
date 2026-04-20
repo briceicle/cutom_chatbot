@@ -29,5 +29,13 @@ job-groups:
 workflows:
   workflow:
     jobs:
+      - no-op:
+          name: start
       - build-and-test:
           serial-group: << pipeline.project.slug >>/build-and-test
+          requires:
+              - start
+      - no-op:
+          name: end
+          requires:
+              - build-and-test
