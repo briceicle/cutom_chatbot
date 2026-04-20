@@ -1,5 +1,32 @@
 version: 2.1
 
 jobs:
-  deploy:
+  build:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: "build"
+          command: "echo build"
+  test:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: "test"
+          command: "echo test"
+  no-op:
     type: no-op
+
+job-groups:
+  build-and-test:
+    jobs:
+      - build
+      - test:
+          requires:
+              - build
+
+workflows:
+  workflow:
+    jobs:
+      - build-and-test
