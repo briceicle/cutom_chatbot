@@ -23,7 +23,7 @@ jobs:
     steps:
       - run:
           name: build-2
-          command: echo build-2
+          command: sleep 2m
 
   coverage:
     docker:
