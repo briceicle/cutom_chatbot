@@ -1,41 +1,92 @@
 version: 2.1
 
 jobs:
-  build:
+  dep:
     docker:
       - image: cimg/base:current
     steps:
       - run:
-          name: "build"
-          command: "echo build"
+          name: dep
+          command: echo dep
+
+  build-1:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: build-1
+          command: "exit 1"
+
+  build-2:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: build-2
+          command: echo build-2
+
+  coverage:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: coverage
+          command: echo coverage
+
   test:
     docker:
       - image: cimg/base:current
     steps:
       - run:
-          name: "test"
-          command: "exit 1"
+          name: test
+          command: echo test
+
   no-op:
     type: no-op
 
 job-groups:
-  build-and-test:
+  serial-build-1:
     jobs:
-      - build
-      - test:
-          requires:
-              - build
+      - build-1:
+          name: build-1
 
 workflows:
   workflow:
     jobs:
       - no-op:
           name: start
-      - build-and-test:
-          serial-group: << pipeline.project.slug >>/build-and-test
+
+      - dep:
           requires:
-              - start
+            - start
+
+      # build-1 lives in a serial group (sparse-tree / serial expansion tests)
+      - serial-build-1:
+          serial-group: << pipeline.project.slug >>/build-1-serial
+          requires:
+            - dep
+
+      - build-2:
+          requires:
+            - dep
+
+      - coverage:
+          requires:
+            - serial-build-1
+            - build-2
+
+      - test:
+          requires:
+            - serial-build-1
+            - build-2
+
+      # Disjoint branch (should disappear from sparse-tree rerun component)
       - no-op:
-          name: end
+          name: separate-1
           requires:
-              - build-and-test
+            - start
+
+      - no-op:
+          name: separate-2
+          requires:
+            - separate-1
