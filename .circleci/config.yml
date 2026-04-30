@@ -28,7 +28,7 @@ job-groups:
 
 workflows:
   workflow:
-    max_auto_reruns: 1
+    max_auto_reruns: 6
     jobs:
       - no-op:
           name: start
