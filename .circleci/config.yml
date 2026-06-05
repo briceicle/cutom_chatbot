@@ -14,7 +14,7 @@ jobs:
     steps:
       - run:
           name: "test"
-          command: "exit 1"
+          command: "sleep 1m"
   no-op:
     type: no-op
 
