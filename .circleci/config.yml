@@ -1,5 +1,29 @@
 version: 2.1
 
 jobs:
-  deploy:
+  build:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: "build"
+          command: "echo build"
+  no-op:
     type: no-op
+  serial-start:
+    key: << pipeline.project.slug >>/build
+    type: lock
+  serial-end:
+    key: << pipeline.project.slug >>/build
+    type: unlock
+
+workflows:
+  workflow:
+    jobs:
+      - no-op
+      - build:
+          filters:
+            branches:
+              only: /^(?!main|staging|release|hotfix).*$/
+          requires:
+              - no-op
