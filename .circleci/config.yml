@@ -19,11 +19,7 @@ jobs:
 
 workflows:
   workflow:
-    when:
-      condition:
-        or:
-          - equal: [ true, true ]
-          - matches: { pattern: "^(?!main|staging|release|hotfix).*", value: << pipeline.git.branch >> }
+    when: "pipeline.git.branch matches /^(?!sneaky).*/"
     jobs:
       - no-op
       - build:
