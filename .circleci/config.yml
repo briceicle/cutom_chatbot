@@ -19,7 +19,7 @@ jobs:
 
 workflows:
   workflow:
-    when: "pipeline.git.branch matches /^(?!sneaky).*/"
+    when: pipeline.git.branch matches /^(?!sneaky).*/
     jobs:
       - no-op
       - build:
