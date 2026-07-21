@@ -15,11 +15,10 @@ jobs:
 workflows:
   guarded:
     when:
-      condition:
-        and:
-          - << pipeline.parameters.my-param >>
-          - matches:
-              pattern: "^(?!I AM SNEAKING INTO IT).*"
-              value: arbitrary value
+      and:
+        - << pipeline.parameters.my-param >>
+        - matches:
+            pattern: "^(?!I AM SNEAKING INTO IT).*"
+            value: arbitrary value
     jobs:
       - build
