@@ -1,28 +1,25 @@
 version: 2.1
 
+parameters:
+  my-param:
+    type: boolean
+    default: false
+
 jobs:
   build:
     docker:
-      - image: cimg/base:current
+      - image: alpine
     steps:
-      - run:
-          name: "build"
-          command: "echo build"
-  no-op:
-    type: no-op
-  serial-start:
-    key: << pipeline.project.slug >>/build
-    type: lock
-  serial-end:
-    key: << pipeline.project.slug >>/build
-    type: unlock
+      - run: exit 0
 
 workflows:
-  workflow:
-    when: false
+  guarded:
+    when:
+      condition:
+        and:
+          - << pipeline.parameters.my-param >>
+          - matches:
+              pattern: "^(?!I AM SNEAKING INTO IT).*"
+              value: arbitrary value
     jobs:
-      - no-op
-      - build:
-          filters: "pipeline.git.branch matches /^(?!sneaky).*/"
-          requires:
-              - no-op
+      - build
