@@ -1,5 +1,24 @@
 version: 2.1
 
 jobs:
-  deploy:
+  build:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: "build"
+          command: "echo hello"
+  no-op:
     type: no-op
+
+workflows:
+  workflow:
+    triggers:
+      - schedule:
+          cron: "*/5 * * * *"
+          filters:
+            branches:
+              only:
+                - schedule
+    jobs:
+      - build
