@@ -1,24 +1,72 @@
 version: 2.1
-
-jobs:
-  build:
-    docker:
-      - image: cimg/base:current
-    steps:
-      - run:
-          name: "build"
-          command: "echo hello"
-  no-op:
-    type: no-op
-
 workflows:
-  workflow:
-    triggers:
-      - schedule:
-          cron: "08 14 * * *"
-          filters:
-            branches:
-              only:
-                - schedule
+  gha:
     jobs:
-      - build
+      - prepare
+      - build:
+          requires:
+            - prepare
+      - test:
+          requires:
+            - prepare
+      - log-behavior
+      - report:
+          requires:
+            - build
+            - test
+jobs:
+  prepare:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - run:
+          name: prepare
+          environment:
+            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJwcmVwYXJlIiwiam9iTmFtZSI6InByZXBhcmUiLCJzdGVwcyI6W3siSUQiOiJzZXQtdmVyc2lvbiIsIk5hbWUiOiJTZXQgdmVyc2lvbiBvdXRwdXQiLCJSdW4iOiJWRVJTSU9OPVwiMS4yLjNcIlxuQlVJTERfREFURT0kKGRhdGUgLXUgKyVZLSVtLSVkKVxuZWNobyBcInZlcnNpb249JFZFUlNJT05cIiBcdTAwM2VcdTAwM2UgXCIkR0lUSFVCX09VVFBVVFwiXG5lY2hvIFwiYnVpbGQtZGF0ZT0kQlVJTERfREFURVwiIFx1MDAzZVx1MDAzZSBcIiRHSVRIVUJfT1VUUFVUXCJcbmVjaG8gXCJQcmVwYXJlZDogdmVyc2lvbj0kVkVSU0lPTiwgYnVpbGQtZGF0ZT0kQlVJTERfREFURVwiXG4iLCJVc2VzIjoiIiwiU2hlbGwiOiJiYXNoIiwiV29ya2luZ0RpciI6IiIsIkVudiI6e30sIklmIjoiIiwiQ29udGludWVPbkVycm9yIjpmYWxzZSwiV2l0aCI6e30sIlRpbWVvdXRNaW51dGVzIjpudWxsfV0sImRlY2xhcmVkT3V0cHV0cyI6eyJidWlsZC1kYXRlIjoiJHt7IHN0ZXBzLnNldC12ZXJzaW9uLm91dHB1dHMuYnVpbGQtZGF0ZSB9fSIsInZlcnNpb24iOiIke3sgc3RlcHMuc2V0LXZlcnNpb24ub3V0cHV0cy52ZXJzaW9uIH19In19
+            RUNNER_RESULTS_DIR: /tmp/gha-results
+          command: circleci run actions exec --job-source=env
+  build:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - run:
+          name: build
+          environment:
+            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJidWlsZCIsImpvYk5hbWUiOiJidWlsZCIsInN0ZXBzIjpbeyJJRCI6IiIsIk5hbWUiOiJWZXJpZnkgb3V0cHV0IG1hc2tpbmciLCJSdW4iOiJUT0tFTj1cIm5vdC1hLXJlYWwtc2VjcmV0LWFiYzEyM1wiXG5lY2hvIFwiOjphZGQtbWFzazo6JFRPS0VOXCJcbmVjaG8gXCJUaGUgdG9rZW4gdmFsdWUgaXM6ICRUT0tFTlwiXG5lY2hvIFwiSWYgbWFza2luZyB3b3JrcywgdGhlIGxpbmUgYWJvdmUgc2hvd3MgKioqIGluc3RlYWQgb2YgdGhlIHZhbHVlXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiV3JpdGUgdmVyc2lvbiBtYW5pZmVzdCIsIlJ1biI6InByaW50ZiAndmVyc2lvbjogXCIlc1wiXFxuZGF0ZTogXCIlc1wiXFxuJyBcXFxuICBcIiR7eyBuZWVkcy5wcmVwYXJlLm91dHB1dHMudmVyc2lvbiB9fVwiIFxcXG4gIFwiJHt7IG5lZWRzLnByZXBhcmUub3V0cHV0cy5idWlsZC1kYXRlIH19XCIgXFxcbiAgXHUwMDNlIFwiJEdJVEhVQl9XT1JLU1BBQ0UvbWFuaWZlc3QueW1sXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiJ2YWxpZGF0ZS15cSIsIk5hbWUiOiJFeHRyYWN0IHZlcnNpb24gd2l0aCB5cSIsIlJ1biI6IiIsIlVzZXMiOiJtaWtlZmFyYWgveXFAdjQuNDQuMyIsIlNoZWxsIjoiYmFzaCIsIldvcmtpbmdEaXIiOiIiLCJFbnYiOnt9LCJJZiI6IiIsIkNvbnRpbnVlT25FcnJvciI6ZmFsc2UsIldpdGgiOnsiY21kIjoieXEgJy52ZXJzaW9uJyBcIiRHSVRIVUJfV09SS1NQQUNFL21hbmlmZXN0LnltbFwiIn0sIlRpbWVvdXRNaW51dGVzIjpudWxsfSx7IklEIjoiIiwiTmFtZSI6IlNob3cgeXEgcmVzdWx0IiwiUnVuIjoiZWNobyBcInlxIHJlc3VsdDogJHt7IHN0ZXBzLnZhbGlkYXRlLXlxLm91dHB1dHMucmVzdWx0IH19XCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiVXNlIHZlcnNpb24gZnJvbSBwcmVwYXJlIiwiUnVuIjoiZWNobyBcIkJ1aWxkaW5nIHZlcnNpb246ICR7eyBuZWVkcy5wcmVwYXJlLm91dHB1dHMudmVyc2lvbiB9fVwiXG5lY2hvIFwiQnVpbGQgZGF0ZTogJHt7IG5lZWRzLnByZXBhcmUub3V0cHV0cy5idWlsZC1kYXRlIH19XCJcbmlmIFsgLXogXCIke3sgbmVlZHMucHJlcGFyZS5vdXRwdXRzLnZlcnNpb24gfX1cIiBdOyB0aGVuXG4gIGVjaG8gXCJFUlJPUjogdmVyc2lvbiBvdXRwdXQgaXMgZW1wdHlcIlxuICBleGl0IDFcbmZpXG5lY2hvIFwiYnVpbGQgY29tcGxldGUgZm9yIHYke3sgbmVlZHMucHJlcGFyZS5vdXRwdXRzLnZlcnNpb24gfX1cIlxuIiwiVXNlcyI6IiIsIlNoZWxsIjoiYmFzaCIsIldvcmtpbmdEaXIiOiIiLCJFbnYiOnt9LCJJZiI6IiIsIkNvbnRpbnVlT25FcnJvciI6ZmFsc2UsIldpdGgiOnt9LCJUaW1lb3V0TWludXRlcyI6bnVsbH1dLCJuZWVkc0tleXMiOlsicHJlcGFyZSJdfQ==
+            RUNNER_RESULTS_DIR: /tmp/gha-results
+          command: circleci run actions exec --job-source=env
+  test:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - run:
+          name: test
+          environment:
+            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJ0ZXN0Iiwiam9iTmFtZSI6InRlc3QiLCJzdGVwcyI6W3siSUQiOiIiLCJOYW1lIjoiVXNlIHZlcnNpb24gZnJvbSBwcmVwYXJlIiwiUnVuIjoiZWNobyBcIlRlc3RpbmcgdmVyc2lvbjogJHt7IG5lZWRzLnByZXBhcmUub3V0cHV0cy52ZXJzaW9uIH19XCJcbmlmIFsgLXogXCIke3sgbmVlZHMucHJlcGFyZS5vdXRwdXRzLnZlcnNpb24gfX1cIiBdOyB0aGVuXG4gIGVjaG8gXCJFUlJPUjogdmVyc2lvbiBvdXRwdXQgaXMgZW1wdHlcIlxuICBleGl0IDFcbmZpXG5lY2hvIFwidGVzdHMgcGFzc2VkIGZvciB2JHt7IG5lZWRzLnByZXBhcmUub3V0cHV0cy52ZXJzaW9uIH19XCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9XSwibmVlZHNLZXlzIjpbInByZXBhcmUiXX0=
+            RUNNER_RESULTS_DIR: /tmp/gha-results
+          command: circleci run actions exec --job-source=env
+  log-behavior:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - run:
+          name: log-behavior
+          environment:
+            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJsb2ctYmVoYXZpb3IiLCJqb2JOYW1lIjoibG9nLWJlaGF2aW9yIiwic3RlcHMiOlt7IklEIjoiIiwiTmFtZSI6Ik91dHB1dCBtYXNraW5nIiwiUnVuIjoiU0VDUkVUPVwieEs5JG1RMiFyUDdcIlxuZWNobyBcIjo6YWRkLW1hc2s6OiRTRUNSRVRcIlxuZWNobyBcInBsYWluIGxpbmUgYmVmb3JlIG1hc2tpbmcgKGFscmVhZHkgcmVnaXN0ZXJlZCBhYm92ZSlcIlxuZWNobyBcInNlY3JldCBpbmxpbmU6ICRTRUNSRVRcIlxuZWNobyBcInNlY3JldCBpbiB0ZXh0OiB0aGUgdmFsdWUgaXMgJFNFQ1JFVCBlbmRcIlxuIiwiVXNlcyI6IiIsIlNoZWxsIjoiYmFzaCIsIldvcmtpbmdEaXIiOiIiLCJFbnYiOnt9LCJJZiI6IiIsIkNvbnRpbnVlT25FcnJvciI6ZmFsc2UsIldpdGgiOnt9LCJUaW1lb3V0TWludXRlcyI6bnVsbH0seyJJRCI6IiIsIk5hbWUiOiJNYXNraW5nIGlzIHNpbGVudCIsIlJ1biI6ImVjaG8gXCJUaGUgYWRkLW1hc2sgY29tbWFuZCBhYm92ZSBtdXN0IG5vdCBhcHBlYXIgaW4gb3V0cHV0XCJcbmVjaG8gXCJObyA6OmFkZC1tYXNrOjogbGluZSBzaG91bGQgYmUgdmlzaWJsZSBpbiB0aGUgbG9nXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiQW5ub3RhdGlvbnMiLCJSdW4iOiJlY2hvIFwiOjplcnJvciBmaWxlPXNyYy9hcHAuZ28sbGluZT0xMDo6bnVsbCBwb2ludGVyIGRlcmVmZXJlbmNlXCJcbmVjaG8gXCI6Ondhcm5pbmcgZmlsZT1zcmMvdXRpbC5nbyxsaW5lPTU6OmRlcHJlY2F0ZWQgZnVuY3Rpb24gY2FsbFwiXG5lY2hvIFwiOjpub3RpY2U6OnRoaXMgaXMgYSBub3RpY2VcIlxuZWNobyBcInJlZ3VsYXIgbGluZSBhZnRlciBhbm5vdGF0aW9uc1wiXG4iLCJVc2VzIjoiIiwiU2hlbGwiOiJiYXNoIiwiV29ya2luZ0RpciI6IiIsIkVudiI6e30sIklmIjoiIiwiQ29udGludWVPbkVycm9yIjpmYWxzZSwiV2l0aCI6e30sIlRpbWVvdXRNaW51dGVzIjpudWxsfSx7IklEIjoiIiwiTmFtZSI6IkRlYnVnIGZpbHRlcmVkIGJ5IGRlZmF1bHQiLCJSdW4iOiJlY2hvIFwiOjpkZWJ1Zzo6dGhpcyBkZWJ1ZyBsaW5lIG11c3Qgbm90IGFwcGVhciB1bmxlc3MgQUNUSU9OU19TVEVQX0RFQlVHPTFcIlxuZWNobyBcInJlZ3VsYXIgbGluZSDigJQgbXVzdCBhbHdheXMgYXBwZWFyXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiRGVidWcgc2hvd24gd2hlbiBlbmFibGVkIiwiUnVuIjoiZWNobyBcIjo6ZGVidWc6OmRlYnVnIGVuYWJsZWQg4oCUIHRoaXMgbXVzdCBhcHBlYXIgd2l0aCAjI1tkZWJ1Z10gcHJlZml4XCJcbmVjaG8gXCJyZWd1bGFyIGxpbmUgYWxvbmdzaWRlIGRlYnVnXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7IkFDVElPTlNfU1RFUF9ERUJVRyI6IjEifSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiR3JvdXAgbWFya2VycyBjb25zdW1lZCIsIlJ1biI6ImVjaG8gXCI6Omdyb3VwOjpJbm5lciB3b3JrXCJcbmVjaG8gXCJpbnNpZGUgdGhlIGdyb3VwXCJcbmVjaG8gXCI6OmVuZGdyb3VwOjpcIlxuZWNobyBcImFmdGVyIHRoZSBncm91cFwiXG4iLCJVc2VzIjoiIiwiU2hlbGwiOiJiYXNoIiwiV29ya2luZ0RpciI6IiIsIkVudiI6e30sIklmIjoiIiwiQ29udGludWVPbkVycm9yIjpmYWxzZSwiV2l0aCI6e30sIlRpbWVvdXRNaW51dGVzIjpudWxsfV19
+            RUNNER_RESULTS_DIR: /tmp/gha-results
+          command: circleci run actions exec --job-source=env
+  report:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - run:
+          name: report
+          environment:
+            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJyZXBvcnQiLCJqb2JOYW1lIjoicmVwb3J0Iiwic3RlcHMiOlt7IklEIjoiIiwiTmFtZSI6IlZlcmlmeSBhbGwgam9icyBwYXNzZWQiLCJSdW4iOiJlY2hvIFwiYnVpbGQgcmVzdWx0OiAke3sgbmVlZHMuYnVpbGQucmVzdWx0IH19XCJcbmVjaG8gXCJ0ZXN0IHJlc3VsdDogJHt7IG5lZWRzLnRlc3QucmVzdWx0IH19XCJcbmlmIFsgXCIke3sgbmVlZHMuYnVpbGQucmVzdWx0IH19XCIgPSBcInN1Y2Nlc3NcIiBdIFx1MDAyNlx1MDAyNiBbIFwiJHt7IG5lZWRzLnRlc3QucmVzdWx0IH19XCIgPSBcInN1Y2Nlc3NcIiBdOyB0aGVuXG4gIGVjaG8gXCJBbGwgam9icyBwYXNzZWQg4oCUIHdvcmtmbG93IGNvbXBsZXRlXCJcbmVsc2VcbiAgZWNobyBcIkVSUk9SOiBPbmUgb3IgbW9yZSBqb2JzIGZhaWxlZFwiXG4gIGV4aXQgMVxuZmlcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9XSwibmVlZHNLZXlzIjpbImJ1aWxkIiwidGVzdCJdfQ==
+            RUNNER_RESULTS_DIR: /tmp/gha-results
+          command: circleci run actions exec --job-source=env
