@@ -1,72 +1,140 @@
-version: 2.1
-workflows:
-  gha:
-    jobs:
-      - prepare
-      - build:
-          requires:
-            - prepare
-      - test:
-          requires:
-            - prepare
-      - log-behavior
-      - report:
-          requires:
-            - build
-            - test
+name: Needs and Outputs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
 jobs:
   prepare:
-    machine:
-      image: ubuntu-2204:current
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+      build-date: ${{ steps.set-version.outputs.build-date }}
     steps:
-      - checkout
-      - run:
-          name: prepare
-          environment:
-            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJwcmVwYXJlIiwiam9iTmFtZSI6InByZXBhcmUiLCJzdGVwcyI6W3siSUQiOiJzZXQtdmVyc2lvbiIsIk5hbWUiOiJTZXQgdmVyc2lvbiBvdXRwdXQiLCJSdW4iOiJWRVJTSU9OPVwiMS4yLjNcIlxuQlVJTERfREFURT0kKGRhdGUgLXUgKyVZLSVtLSVkKVxuZWNobyBcInZlcnNpb249JFZFUlNJT05cIiBcdTAwM2VcdTAwM2UgXCIkR0lUSFVCX09VVFBVVFwiXG5lY2hvIFwiYnVpbGQtZGF0ZT0kQlVJTERfREFURVwiIFx1MDAzZVx1MDAzZSBcIiRHSVRIVUJfT1VUUFVUXCJcbmVjaG8gXCJQcmVwYXJlZDogdmVyc2lvbj0kVkVSU0lPTiwgYnVpbGQtZGF0ZT0kQlVJTERfREFURVwiXG4iLCJVc2VzIjoiIiwiU2hlbGwiOiJiYXNoIiwiV29ya2luZ0RpciI6IiIsIkVudiI6e30sIklmIjoiIiwiQ29udGludWVPbkVycm9yIjpmYWxzZSwiV2l0aCI6e30sIlRpbWVvdXRNaW51dGVzIjpudWxsfV0sImRlY2xhcmVkT3V0cHV0cyI6eyJidWlsZC1kYXRlIjoiJHt7IHN0ZXBzLnNldC12ZXJzaW9uLm91dHB1dHMuYnVpbGQtZGF0ZSB9fSIsInZlcnNpb24iOiIke3sgc3RlcHMuc2V0LXZlcnNpb24ub3V0cHV0cy52ZXJzaW9uIH19In19
-            RUNNER_RESULTS_DIR: /tmp/gha-results
-          command: circleci run actions exec --job-source=env
+      - name: Set version output
+        id: set-version
+        run: |
+          VERSION="1.2.3"
+          BUILD_DATE=$(date -u +%Y-%m-%d)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "build-date=$BUILD_DATE" >> "$GITHUB_OUTPUT"
+          echo "Prepared: version=$VERSION, build-date=$BUILD_DATE"
+
   build:
-    machine:
-      image: ubuntu-2204:current
+    runs-on: ubuntu-latest
+    needs: prepare
     steps:
-      - checkout
-      - run:
-          name: build
-          environment:
-            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJidWlsZCIsImpvYk5hbWUiOiJidWlsZCIsInN0ZXBzIjpbeyJJRCI6IiIsIk5hbWUiOiJWZXJpZnkgb3V0cHV0IG1hc2tpbmciLCJSdW4iOiJUT0tFTj1cIm5vdC1hLXJlYWwtc2VjcmV0LWFiYzEyM1wiXG5lY2hvIFwiOjphZGQtbWFzazo6JFRPS0VOXCJcbmVjaG8gXCJUaGUgdG9rZW4gdmFsdWUgaXM6ICRUT0tFTlwiXG5lY2hvIFwiSWYgbWFza2luZyB3b3JrcywgdGhlIGxpbmUgYWJvdmUgc2hvd3MgKioqIGluc3RlYWQgb2YgdGhlIHZhbHVlXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiV3JpdGUgdmVyc2lvbiBtYW5pZmVzdCIsIlJ1biI6InByaW50ZiAndmVyc2lvbjogXCIlc1wiXFxuZGF0ZTogXCIlc1wiXFxuJyBcXFxuICBcIiR7eyBuZWVkcy5wcmVwYXJlLm91dHB1dHMudmVyc2lvbiB9fVwiIFxcXG4gIFwiJHt7IG5lZWRzLnByZXBhcmUub3V0cHV0cy5idWlsZC1kYXRlIH19XCIgXFxcbiAgXHUwMDNlIFwiJEdJVEhVQl9XT1JLU1BBQ0UvbWFuaWZlc3QueW1sXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiJ2YWxpZGF0ZS15cSIsIk5hbWUiOiJFeHRyYWN0IHZlcnNpb24gd2l0aCB5cSIsIlJ1biI6IiIsIlVzZXMiOiJtaWtlZmFyYWgveXFAdjQuNDQuMyIsIlNoZWxsIjoiYmFzaCIsIldvcmtpbmdEaXIiOiIiLCJFbnYiOnt9LCJJZiI6IiIsIkNvbnRpbnVlT25FcnJvciI6ZmFsc2UsIldpdGgiOnsiY21kIjoieXEgJy52ZXJzaW9uJyBcIiRHSVRIVUJfV09SS1NQQUNFL21hbmlmZXN0LnltbFwiIn0sIlRpbWVvdXRNaW51dGVzIjpudWxsfSx7IklEIjoiIiwiTmFtZSI6IlNob3cgeXEgcmVzdWx0IiwiUnVuIjoiZWNobyBcInlxIHJlc3VsdDogJHt7IHN0ZXBzLnZhbGlkYXRlLXlxLm91dHB1dHMucmVzdWx0IH19XCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiVXNlIHZlcnNpb24gZnJvbSBwcmVwYXJlIiwiUnVuIjoiZWNobyBcIkJ1aWxkaW5nIHZlcnNpb246ICR7eyBuZWVkcy5wcmVwYXJlLm91dHB1dHMudmVyc2lvbiB9fVwiXG5lY2hvIFwiQnVpbGQgZGF0ZTogJHt7IG5lZWRzLnByZXBhcmUub3V0cHV0cy5idWlsZC1kYXRlIH19XCJcbmlmIFsgLXogXCIke3sgbmVlZHMucHJlcGFyZS5vdXRwdXRzLnZlcnNpb24gfX1cIiBdOyB0aGVuXG4gIGVjaG8gXCJFUlJPUjogdmVyc2lvbiBvdXRwdXQgaXMgZW1wdHlcIlxuICBleGl0IDFcbmZpXG5lY2hvIFwiYnVpbGQgY29tcGxldGUgZm9yIHYke3sgbmVlZHMucHJlcGFyZS5vdXRwdXRzLnZlcnNpb24gfX1cIlxuIiwiVXNlcyI6IiIsIlNoZWxsIjoiYmFzaCIsIldvcmtpbmdEaXIiOiIiLCJFbnYiOnt9LCJJZiI6IiIsIkNvbnRpbnVlT25FcnJvciI6ZmFsc2UsIldpdGgiOnt9LCJUaW1lb3V0TWludXRlcyI6bnVsbH1dLCJuZWVkc0tleXMiOlsicHJlcGFyZSJdfQ==
-            RUNNER_RESULTS_DIR: /tmp/gha-results
-          command: circleci run actions exec --job-source=env
+      - name: Verify output masking
+        run: |
+          TOKEN="not-a-real-secret-abc123"
+          echo "::add-mask::$TOKEN"
+          echo "The token value is: $TOKEN"
+          echo "If masking works, the line above shows *** instead of the value"
+
+      - name: Write version manifest
+        run: |
+          printf 'version: "%s"\ndate: "%s"\n' \
+            "${{ needs.prepare.outputs.version }}" \
+            "${{ needs.prepare.outputs.build-date }}" \
+            > "$GITHUB_WORKSPACE/manifest.yml"
+
+      - name: Extract version with yq
+        id: validate-yq
+        uses: mikefarah/yq@v4.44.3
+        with:
+          cmd: yq '.version' "$GITHUB_WORKSPACE/manifest.yml"
+
+      - name: Show yq result
+        run: |
+          echo "yq result: ${{ steps.validate-yq.outputs.result }}"
+
+      - name: Use version from prepare
+        run: |
+          echo "Building version: ${{ needs.prepare.outputs.version }}"
+          echo "Build date: ${{ needs.prepare.outputs.build-date }}"
+          if [ -z "${{ needs.prepare.outputs.version }}" ]; then
+            echo "ERROR: version output is empty"
+            exit 1
+          fi
+          echo "build complete for v${{ needs.prepare.outputs.version }}"
+
   test:
-    machine:
-      image: ubuntu-2204:current
+    runs-on: ubuntu-latest
+    needs: prepare
     steps:
-      - checkout
-      - run:
-          name: test
-          environment:
-            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJ0ZXN0Iiwiam9iTmFtZSI6InRlc3QiLCJzdGVwcyI6W3siSUQiOiIiLCJOYW1lIjoiVXNlIHZlcnNpb24gZnJvbSBwcmVwYXJlIiwiUnVuIjoiZWNobyBcIlRlc3RpbmcgdmVyc2lvbjogJHt7IG5lZWRzLnByZXBhcmUub3V0cHV0cy52ZXJzaW9uIH19XCJcbmlmIFsgLXogXCIke3sgbmVlZHMucHJlcGFyZS5vdXRwdXRzLnZlcnNpb24gfX1cIiBdOyB0aGVuXG4gIGVjaG8gXCJFUlJPUjogdmVyc2lvbiBvdXRwdXQgaXMgZW1wdHlcIlxuICBleGl0IDFcbmZpXG5lY2hvIFwidGVzdHMgcGFzc2VkIGZvciB2JHt7IG5lZWRzLnByZXBhcmUub3V0cHV0cy52ZXJzaW9uIH19XCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9XSwibmVlZHNLZXlzIjpbInByZXBhcmUiXX0=
-            RUNNER_RESULTS_DIR: /tmp/gha-results
-          command: circleci run actions exec --job-source=env
+      - name: Use version from prepare
+        run: |
+          echo "Testing version: ${{ needs.prepare.outputs.version }}"
+          if [ -z "${{ needs.prepare.outputs.version }}" ]; then
+            echo "ERROR: version output is empty"
+            exit 1
+          fi
+          echo "tests passed for v${{ needs.prepare.outputs.version }}"
+
   log-behavior:
-    machine:
-      image: ubuntu-2204:current
+    runs-on: ubuntu-latest
     steps:
-      - checkout
-      - run:
-          name: log-behavior
-          environment:
-            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJsb2ctYmVoYXZpb3IiLCJqb2JOYW1lIjoibG9nLWJlaGF2aW9yIiwic3RlcHMiOlt7IklEIjoiIiwiTmFtZSI6Ik91dHB1dCBtYXNraW5nIiwiUnVuIjoiU0VDUkVUPVwieEs5JG1RMiFyUDdcIlxuZWNobyBcIjo6YWRkLW1hc2s6OiRTRUNSRVRcIlxuZWNobyBcInBsYWluIGxpbmUgYmVmb3JlIG1hc2tpbmcgKGFscmVhZHkgcmVnaXN0ZXJlZCBhYm92ZSlcIlxuZWNobyBcInNlY3JldCBpbmxpbmU6ICRTRUNSRVRcIlxuZWNobyBcInNlY3JldCBpbiB0ZXh0OiB0aGUgdmFsdWUgaXMgJFNFQ1JFVCBlbmRcIlxuIiwiVXNlcyI6IiIsIlNoZWxsIjoiYmFzaCIsIldvcmtpbmdEaXIiOiIiLCJFbnYiOnt9LCJJZiI6IiIsIkNvbnRpbnVlT25FcnJvciI6ZmFsc2UsIldpdGgiOnt9LCJUaW1lb3V0TWludXRlcyI6bnVsbH0seyJJRCI6IiIsIk5hbWUiOiJNYXNraW5nIGlzIHNpbGVudCIsIlJ1biI6ImVjaG8gXCJUaGUgYWRkLW1hc2sgY29tbWFuZCBhYm92ZSBtdXN0IG5vdCBhcHBlYXIgaW4gb3V0cHV0XCJcbmVjaG8gXCJObyA6OmFkZC1tYXNrOjogbGluZSBzaG91bGQgYmUgdmlzaWJsZSBpbiB0aGUgbG9nXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiQW5ub3RhdGlvbnMiLCJSdW4iOiJlY2hvIFwiOjplcnJvciBmaWxlPXNyYy9hcHAuZ28sbGluZT0xMDo6bnVsbCBwb2ludGVyIGRlcmVmZXJlbmNlXCJcbmVjaG8gXCI6Ondhcm5pbmcgZmlsZT1zcmMvdXRpbC5nbyxsaW5lPTU6OmRlcHJlY2F0ZWQgZnVuY3Rpb24gY2FsbFwiXG5lY2hvIFwiOjpub3RpY2U6OnRoaXMgaXMgYSBub3RpY2VcIlxuZWNobyBcInJlZ3VsYXIgbGluZSBhZnRlciBhbm5vdGF0aW9uc1wiXG4iLCJVc2VzIjoiIiwiU2hlbGwiOiJiYXNoIiwiV29ya2luZ0RpciI6IiIsIkVudiI6e30sIklmIjoiIiwiQ29udGludWVPbkVycm9yIjpmYWxzZSwiV2l0aCI6e30sIlRpbWVvdXRNaW51dGVzIjpudWxsfSx7IklEIjoiIiwiTmFtZSI6IkRlYnVnIGZpbHRlcmVkIGJ5IGRlZmF1bHQiLCJSdW4iOiJlY2hvIFwiOjpkZWJ1Zzo6dGhpcyBkZWJ1ZyBsaW5lIG11c3Qgbm90IGFwcGVhciB1bmxlc3MgQUNUSU9OU19TVEVQX0RFQlVHPTFcIlxuZWNobyBcInJlZ3VsYXIgbGluZSDigJQgbXVzdCBhbHdheXMgYXBwZWFyXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiRGVidWcgc2hvd24gd2hlbiBlbmFibGVkIiwiUnVuIjoiZWNobyBcIjo6ZGVidWc6OmRlYnVnIGVuYWJsZWQg4oCUIHRoaXMgbXVzdCBhcHBlYXIgd2l0aCAjI1tkZWJ1Z10gcHJlZml4XCJcbmVjaG8gXCJyZWd1bGFyIGxpbmUgYWxvbmdzaWRlIGRlYnVnXCJcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7IkFDVElPTlNfU1RFUF9ERUJVRyI6IjEifSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9LHsiSUQiOiIiLCJOYW1lIjoiR3JvdXAgbWFya2VycyBjb25zdW1lZCIsIlJ1biI6ImVjaG8gXCI6Omdyb3VwOjpJbm5lciB3b3JrXCJcbmVjaG8gXCJpbnNpZGUgdGhlIGdyb3VwXCJcbmVjaG8gXCI6OmVuZGdyb3VwOjpcIlxuZWNobyBcImFmdGVyIHRoZSBncm91cFwiXG4iLCJVc2VzIjoiIiwiU2hlbGwiOiJiYXNoIiwiV29ya2luZ0RpciI6IiIsIkVudiI6e30sIklmIjoiIiwiQ29udGludWVPbkVycm9yIjpmYWxzZSwiV2l0aCI6e30sIlRpbWVvdXRNaW51dGVzIjpudWxsfV19
-            RUNNER_RESULTS_DIR: /tmp/gha-results
-          command: circleci run actions exec --job-source=env
+      - name: Output masking
+        run: |
+          SECRET="xK9$mQ2!rP7"
+          echo "::add-mask::$SECRET"
+          echo "plain line before masking (already registered above)"
+          echo "secret inline: $SECRET"
+          echo "secret in text: the value is $SECRET end"
+
+      - name: Masking is silent
+        run: |
+          echo "The add-mask command above must not appear in output"
+          echo "No ::add-mask:: line should be visible in the log"
+
+      - name: Annotations
+        run: |
+          echo "::error file=src/app.go,line=10::null pointer dereference"
+          echo "::warning file=src/util.go,line=5::deprecated function call"
+          echo "::notice::this is a notice"
+          echo "regular line after annotations"
+
+      - name: Debug filtered by default
+        run: |
+          echo "::debug::this debug line must not appear unless ACTIONS_STEP_DEBUG=1"
+          echo "regular line — must always appear"
+
+      - name: Debug shown when enabled
+        env:
+          ACTIONS_STEP_DEBUG: "1"
+        run: |
+          echo "::debug::debug enabled — this must appear with ##[debug] prefix"
+          echo "regular line alongside debug"
+
+      - name: Group markers consumed
+        run: |
+          echo "::group::Inner work"
+          echo "inside the group"
+          echo "::endgroup::"
+          echo "after the group"
+
+  test-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Show Python version
+        run: |
+          echo "Running tests with Python ${{ matrix.python-version }}"
+
   report:
-    machine:
-      image: ubuntu-2204:current
+    runs-on: ubuntu-latest
+    needs: [build, test]
     steps:
-      - checkout
-      - run:
-          name: report
-          environment:
-            RUNNER_JOB_PAYLOAD: eyJqb2JLZXkiOiJyZXBvcnQiLCJqb2JOYW1lIjoicmVwb3J0Iiwic3RlcHMiOlt7IklEIjoiIiwiTmFtZSI6IlZlcmlmeSBhbGwgam9icyBwYXNzZWQiLCJSdW4iOiJlY2hvIFwiYnVpbGQgcmVzdWx0OiAke3sgbmVlZHMuYnVpbGQucmVzdWx0IH19XCJcbmVjaG8gXCJ0ZXN0IHJlc3VsdDogJHt7IG5lZWRzLnRlc3QucmVzdWx0IH19XCJcbmlmIFsgXCIke3sgbmVlZHMuYnVpbGQucmVzdWx0IH19XCIgPSBcInN1Y2Nlc3NcIiBdIFx1MDAyNlx1MDAyNiBbIFwiJHt7IG5lZWRzLnRlc3QucmVzdWx0IH19XCIgPSBcInN1Y2Nlc3NcIiBdOyB0aGVuXG4gIGVjaG8gXCJBbGwgam9icyBwYXNzZWQg4oCUIHdvcmtmbG93IGNvbXBsZXRlXCJcbmVsc2VcbiAgZWNobyBcIkVSUk9SOiBPbmUgb3IgbW9yZSBqb2JzIGZhaWxlZFwiXG4gIGV4aXQgMVxuZmlcbiIsIlVzZXMiOiIiLCJTaGVsbCI6ImJhc2giLCJXb3JraW5nRGlyIjoiIiwiRW52Ijp7fSwiSWYiOiIiLCJDb250aW51ZU9uRXJyb3IiOmZhbHNlLCJXaXRoIjp7fSwiVGltZW91dE1pbnV0ZXMiOm51bGx9XSwibmVlZHNLZXlzIjpbImJ1aWxkIiwidGVzdCJdfQ==
-            RUNNER_RESULTS_DIR: /tmp/gha-results
-          command: circleci run actions exec --job-source=env
+      - name: Verify all jobs passed
+        run: |
+          echo "build result: ${{ needs.build.result }}"
+          echo "test result: ${{ needs.test.result }}"
+          if [ "${{ needs.build.result }}" = "success" ] && [ "${{ needs.test.result }}" = "success" ]; then
+            echo "All jobs passed — workflow complete"
+          else
+            echo "ERROR: One or more jobs failed"
+            exit 1
+          fi
