@@ -4,16 +4,13 @@ jobs:
   build:
     docker:
       - image: cimg/base:current
-    parameters:
-      flavor:
-        type: enum
-        enum: ["apple", "banana"]
-        default: ""
     steps:
-      - run: echo "flavor=<< parameters.flavor >>"
+      - run: echo hi
 
 workflows:
   main:
     jobs:
       - build:
-          upstream: whatever
+          upstream:
+            nonexistent:
+              - success
