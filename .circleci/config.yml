@@ -4,39 +4,16 @@ jobs:
   build:
     docker:
       - image: cimg/base:current
+    parameters:
+      flavor:
+        type: enum
+        enum: ["apple", "banana"]
+        default: ""
     steps:
-      - run:
-          name: "build"
-          command: "echo build"
-  test:
-    docker:
-      - image: cimg/base:current
-    steps:
-      - run:
-          name: "test"
-          command: "exit 1"
-  no-op:
-    type: no-op
-
-job-groups:
-  build-and-test:
-    jobs:
-      - build
-      - test:
-          requires:
-              - build
+      - run: echo "flavor=<< parameters.flavor >>"
 
 workflows:
-  workflow:
-    max_auto_reruns: 6
+  main:
     jobs:
-      - no-op:
-          name: start
-      - build-and-test:
-          serial-group: << pipeline.project.slug >>/build-and-test
-          requires:
-              - start
-      - no-op:
-          name: end
-          requires:
-              - build-and-test
+      - build:
+          upstream: whatever
