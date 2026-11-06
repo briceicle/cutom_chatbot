@@ -1,5 +1,19 @@
 version: 2.1
 
 jobs:
-  deploy:
-    type: no-op
+  build:
+    docker:
+      - image: cimg/base:current
+    parameters:
+      flavor:
+        type: enum
+        enum: ["apple", "banana"]
+        default: ""
+    steps:
+      - run: echo "flavor=<< parameters.flavor >>"
+
+workflows:
+  main:
+    jobs:
+      - build:
+          upstream: whatever
