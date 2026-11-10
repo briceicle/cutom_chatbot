@@ -1,24 +1,35 @@
 version: 2.1
 
+parameters:
+  job_type:
+    type: string
+    default: build
+
 jobs:
-  setup:
-    docker:
-      - image: cimg/base:current
-    steps:
-      - run: echo setup
   build:
     docker:
       - image: cimg/base:current
     steps:
-      - run: echo build
+      - checkout
+      - run: echo "hello"
+
+  maybe:
+    type: << pipeline.parameters.job_type >>
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run: echo "maybe"
+
+  notify:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run: echo "notify"
 
 workflows:
   main:
     jobs:
-      - setup
-      - build:
-          requires:
-            - setup
-          upstream:
-            setup:
-              - success
+      - build
+      - maybe
+      - notify:
+          requires: null
