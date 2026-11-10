@@ -24,7 +24,7 @@ workflows:
   main:
     jobs:
       - build
-      - maybe
+      - maybe:
           requires: null
       - notify:
           requires: null
